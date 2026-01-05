@@ -1,0 +1,1 @@
+# AzureLocal_VMdeploymentTerraform
