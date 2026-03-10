@@ -1,9 +1,9 @@
 # --- Infrastructure & Identity Variables ---
 variable "subscription_id" {
-    description = "The subscription ID where the resources will be created."
-    type        = string
-  
+  description = "The subscription ID where the resources will be created."
+  type        = string
 }
+
 variable "resource_group_name" {
   type        = string
   description = "The name of the Resource Group where Azure Local resources are located."
@@ -15,9 +15,9 @@ variable "custom_location_name" {
 }
 
 variable "custom_location_resource_group_name" {
-    description = "The name of the resource group where the custom location is defined."
-    type        = string
-    default     = "rg-azuf-euw-p-last-mile-monitoring-service"
+  description = "The name of the resource group where the custom location is defined."
+  type        = string
+  default     = "rg-Azurelocal-mgmt"
 }
 
 variable "logical_network_name" {
@@ -26,9 +26,9 @@ variable "logical_network_name" {
 }
 
 variable "logical_network_rg_name" {
-    description = "The name of the resource group where the logical network is defined."
-    type        = string
-    default     = "rg-azuf-euw-p-last-mile-monitoring-service"  
+  description = "The name of the resource group where the logical network is defined."
+  type        = string
+  default     = "rg-Azurelocal-mgmt"
 }
 
 variable "image_name" {
@@ -42,8 +42,13 @@ variable "is_marketplace_image" {
   description = "Set to true if using a Marketplace image, false if using a custom Gallery image."
 }
 
-# --- Virtual Machine Instance Variables ---
+# --- Storage Variables ---
+variable "storage_container_name" {
+  type        = string
+  description = "The name of the HCI Storage Container (Cluster Volume) where VM disks will be stored."
+}
 
+# --- Virtual Machine Instance Variables ---
 variable "name" {
   type        = string
   description = "The name of the Virtual Machine instance."
@@ -73,8 +78,6 @@ variable "memory_mb" {
   description = "Memory size in MB."
 }
 
-# --- Network & Storage ---
-
 variable "private_ip_address" {
   type        = string
   default     = null
@@ -84,11 +87,7 @@ variable "private_ip_address" {
 variable "data_disk_params" {
   type = map(object({
     disk_size_gb = number
-    storage_path = string
   }))
   default     = {}
   description = "Map of data disks to attach to the VM."
 }
-
-
-
