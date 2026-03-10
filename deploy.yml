@@ -1,0 +1,52 @@
+name: 'Terraform Azure Local Deployment'
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+# Special permissions required for OIDC (Workload Identity)
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  terraform:
+    name: 'Terraform'
+    runs-on: ubuntu-latest
+    
+    env:
+      # Use GitHub Secrets for all sensitive/dynamic IDs
+      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      
+      # Set this to false since we are using a Secret now, not OIDC
+      ARM_USE_OIDC: false
+      
+      # Securely passing the VM password
+      TF_VAR_vm_admin_password: ${{ secrets.VM_ADMIN_PASSWORD }}
+      
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: '{"clientId":"${{ env.ARM_CLIENT_ID }}","clientSecret":"${{ env.ARM_CLIENT_SECRET }}","subscriptionId":"${{ env.ARM_SUBSCRIPTION_ID }}","tenantId":"${{ env.ARM_TENANT_ID }}"}'
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Plan
+        run: terraform plan -input=false
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: terraform apply -auto-approve -input=false
